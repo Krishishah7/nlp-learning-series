@@ -21,6 +21,11 @@ uvicorn app:app --reload
 ```bash
 streamlit run app_ui.py
 ```
+
 ### Note
 
 Make sure the FastAPI backend is running before starting the UI.
+
+## UI Preview
+
+![RAG UI](ui.png)
