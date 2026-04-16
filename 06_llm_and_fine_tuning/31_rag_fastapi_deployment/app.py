@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import numpy as np
 import pandas as pd
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import util
 import uvicorn
+
 # -----------------------------
 # Initialize App
 # -----------------------------
@@ -22,10 +23,16 @@ documents = [
 df = pd.DataFrame({"text": documents})
 
 # -----------------------------
-# Model
+# Model Loader (Lazy Loading)
 # -----------------------------
-model = SentenceTransformer('all-MiniLM-L6-v2')
-doc_embeddings = model.encode(df["text"].tolist())
+model = None
+
+def get_model():
+    global model
+    if model is None:
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+    return model
 
 # -----------------------------
 # Memory
@@ -42,7 +49,11 @@ class QueryRequest(BaseModel):
 # Retrieval
 # -----------------------------
 def retrieve(query, k=2):
+    model = get_model()
+
+    doc_embeddings = model.encode(df["text"].tolist())
     query_embedding = model.encode(query)
+
     scores = util.cos_sim(query_embedding, doc_embeddings)[0]
     scores = scores.cpu().numpy() if hasattr(scores, "cpu") else np.array(scores)
 
@@ -52,10 +63,12 @@ def retrieve(query, k=2):
 # -----------------------------
 # Answer Extraction
 # -----------------------------
-answers = ["Elon Musk", "SpaceX", "Tesla"]
-answer_embeddings = model.encode(answers)
-
 def extract_answer(query):
+    model = get_model()
+
+    answers = ["Elon Musk", "SpaceX", "Tesla"]
+    answer_embeddings = model.encode(answers)
+
     query_embedding = model.encode(query)
     scores = util.cos_sim(query_embedding, answer_embeddings)[0]
     scores = scores.cpu().numpy() if hasattr(scores, "cpu") else np.array(scores)
@@ -123,9 +136,8 @@ def ask_question(request: QueryRequest):
     # Confidence
     conf, score = get_confidence(scores)
 
-    # Combine answers properly
+    # Combine answers
     final_answer = answer
-
     if tool_output:
         final_answer = f"Calculation result: {tool_output}, Answer: {answer}"
 
@@ -136,7 +148,9 @@ def ask_question(request: QueryRequest):
         "score": score,
         "tool_output": tool_output
     }
-    
 
+# -----------------------------
+# Run (for Render)
+# -----------------------------
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=10000)
