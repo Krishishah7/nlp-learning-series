@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer, util
-
+import uvicorn
 # -----------------------------
 # Initialize App
 # -----------------------------
@@ -137,3 +137,6 @@ def ask_question(request: QueryRequest):
         "tool_output": tool_output
     }
     
+
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="0.0.0.0", port=10000)
