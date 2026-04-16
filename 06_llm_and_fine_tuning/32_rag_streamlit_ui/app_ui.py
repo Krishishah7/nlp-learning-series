@@ -14,7 +14,7 @@ if st.button("Ask"):
     else:
         try:
             response = requests.post(
-                "http://127.0.0.1:8000/ask",
+                "https://rag-api-nxgf.onrender.com/ask",
                 json={"query": query}
             )
             
