@@ -15,3 +15,6 @@ User Input → Prompt Template → LLM → Structured Output
 ## Tech Stack
 - Python
 - Transformers (Hugging Face)
+
+### Note
+This project demonstrates prompt engineering and structured response generation using transformer models. Output quality may vary due to lightweight model limitations.
