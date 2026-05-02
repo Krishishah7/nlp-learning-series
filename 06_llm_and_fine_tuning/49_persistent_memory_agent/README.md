@@ -11,3 +11,5 @@ This notebook implements an AI agent that stores learned feedback in a file and 
 
 ## 🎯 Goal
 To build an AI system that retains learned knowledge beyond a single runtime session.
+
+#### Note: The JSON file contains sample stored feedback for demonstration purposes.
